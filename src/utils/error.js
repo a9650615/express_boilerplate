@@ -6,6 +6,7 @@ function report(error: Error) {
 
 export class ValidationError extends Error {
   code = 400;
+
   state: any;
 
   constructor(errors: Array<ValidationErrorEntry>) {
@@ -26,11 +27,13 @@ export class ValidationError extends Error {
 
 export class UnauthorizedError extends Error {
   code = 401;
+
   message = this.message || 'Anonymous access is denied.';
 }
 
 export class ForbiddenError extends Error {
   code = 403;
+
   message = this.message || 'Access is denied.';
 }
 

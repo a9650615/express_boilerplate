@@ -1,11 +1,10 @@
+/* eslint-disable no-console */
 const fs = require('fs');
 const path = require('path');
 const babel = require('@babel/core');
 const chokidar = require('chokidar');
 const del = require('del');
 const task = require('./task');
-
-let watcher = chokidar.watch(['src', 'package.json', 'yarn.lock']);
 
 const delay100ms = (timeout => callback => {
   if (timeout) clearTimeout(timeout);
@@ -21,12 +20,7 @@ module.exports = task(
       // Clean up the output directory
       del.sync(['build/**', '!build'], { dot: true });
 
-      let watcher = chokidar.watch([
-        'locales',
-        'src',
-        'package.json',
-        'yarn.lock',
-      ]);
+      let watcher = chokidar.watch(['src', 'package.json', 'yarn.lock']);
       watcher.on('all', (event, src) => {
         // Reload the app if package.json or yarn.lock files have changed (in watch mode)
         if (src === 'package.json' || src === 'yarn.lock') {

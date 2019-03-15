@@ -1,4 +1,4 @@
-import app from './app';
+import app from 'app';
 import errors from 'utils/error';
 
 const port = process.env.PORT || 8080;
@@ -6,6 +6,7 @@ const host = process.env.HOSTNAME || '0.0.0.0';
 
 // Launch Node.js server
 const server = app.listen(port, host, () => {
+  // eslint-disable-next-line no-console
   console.log(`Node.js API server is listening on http://${host}:${port}/`);
 });
 
@@ -18,7 +19,7 @@ function handleExit(options, err) {
         close(() => {
           if (i === actions.length - 1) process.exit();
         });
-      } catch (err) {
+      } catch (_) {
         if (i === actions.length - 1) process.exit();
       }
     });
