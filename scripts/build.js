@@ -20,7 +20,7 @@ module.exports = task(
       // Clean up the output directory
       del.sync(['build/**', '!build'], { dot: true });
 
-      let watcher = chokidar.watch(['src', 'package.json', 'yarn.lock']);
+      let watcher = chokidar.watch(['lib', 'package.json', 'yarn.lock']);
       watcher.on('all', (event, src) => {
         // Reload the app if package.json or yarn.lock files have changed (in watch mode)
         if (src === 'package.json' || src === 'yarn.lock') {
@@ -36,16 +36,16 @@ module.exports = task(
           return;
         }
 
-        // Get destination file name, e.g. src/app.js (src) -> build/app.js (dest)
-        const dest = src.startsWith('src')
-          ? `build/${path.relative('src', src)}`
+        // Get destination file name, e.g. lib/app.js (src) -> build/app.js (dest)
+        const dest = src.startsWith('lib')
+          ? `build/${path.relative('lib', src)}`
           : `build/${src}`;
 
         try {
           switch (event) {
             // Create a directory if it doesn't exist
             case 'addDir':
-              if (src.startsWith('src') && !fs.existsSync(dest))
+              if (src.startsWith('lib') && !fs.existsSync(dest))
                 fs.mkdirSync(dest);
               if (ready && onComplete) onComplete();
               break;
@@ -53,7 +53,7 @@ module.exports = task(
             // Create or update a file inside the output (build) folder
             case 'add':
             case 'change':
-              if (src.startsWith('src') && src.endsWith('.js')) {
+              if (src.startsWith('lib') && src.endsWith('.js')) {
                 const { code, map } = babel.transformFileSync(src, {
                   sourceMaps: true,
                   sourceFileName: path.relative(
@@ -63,7 +63,7 @@ module.exports = task(
                 });
                 // Enable source maps
                 const data =
-                  (src === 'src/server.js'
+                  (src === 'lib/server.js'
                     ? "require('source-map-support').install(); "
                     : '') +
                   code +
@@ -74,7 +74,7 @@ module.exports = task(
                 console.log(src, '->', dest);
                 if (map)
                   fs.writeFileSync(`${dest}.map`, JSON.stringify(map), 'utf8');
-              } else if (src.startsWith('src')) {
+              } else if (src.startsWith('lib')) {
                 const data = fs.readFileSync(src, 'utf8');
                 fs.writeFileSync(dest, data, 'utf8');
                 console.log(src, '->', dest);

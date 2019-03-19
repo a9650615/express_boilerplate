@@ -16,8 +16,10 @@
     [
       "module-resolver",
       {
-        "root": ["./src"],
-        "alias": {}
+        "root": ["./app"],
+        "alias": {
+          "lib": "./lib"
+        }
       }
     ]
   ]
