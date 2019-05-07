@@ -20,8 +20,16 @@ module.exports = task(
       // Clean up the output directory
       del.sync(['build/**', '!build'], { dot: true });
 
-      let watcher = chokidar.watch(['lib', 'package.json', 'yarn.lock']);
+      let watcher = chokidar.watch(['lib', 'app', 'package.json', 'yarn.lock']);
       watcher.on('all', (event, src) => {
+        // eslint-disable-next-line no-unused-vars
+        let currentDir = '';
+        if (src.startsWith('lib')) {
+          currentDir = 'lib';
+        }
+        if (src.startsWith('app')) {
+          currentDir = 'app';
+        }
         // Reload the app if package.json or yarn.lock files have changed (in watch mode)
         if (src === 'package.json' || src === 'yarn.lock') {
           if (ready && onComplete) delay100ms(onComplete);
@@ -37,15 +45,19 @@ module.exports = task(
         }
 
         // Get destination file name, e.g. lib/app.js (src) -> build/app.js (dest)
-        const dest = src.startsWith('lib')
-          ? `build/${path.relative('lib', src)}`
-          : `build/${src}`;
+        const dest = `build/${path.relative('.', src)}`;
+        // const dest = src.startsWith('lib')
+        //   ? `build/${path.relative('lib', src)}`
+        //   : `build/${src}`;
 
         try {
           switch (event) {
             // Create a directory if it doesn't exist
             case 'addDir':
-              if (src.startsWith('lib') && !fs.existsSync(dest))
+              if (
+                (src.startsWith('lib') || src.startsWith('app')) &&
+                !fs.existsSync(dest)
+              )
                 fs.mkdirSync(dest);
               if (ready && onComplete) onComplete();
               break;
@@ -53,7 +65,10 @@ module.exports = task(
             // Create or update a file inside the output (build) folder
             case 'add':
             case 'change':
-              if (src.startsWith('lib') && src.endsWith('.js')) {
+              if (
+                (src.startsWith('lib') || src.startsWith('app')) &&
+                src.endsWith('.js')
+              ) {
                 const { code, map } = babel.transformFileSync(src, {
                   sourceMaps: true,
                   sourceFileName: path.relative(
@@ -74,7 +89,7 @@ module.exports = task(
                 console.log(src, '->', dest);
                 if (map)
                   fs.writeFileSync(`${dest}.map`, JSON.stringify(map), 'utf8');
-              } else if (src.startsWith('lib')) {
+              } else if (src.startsWith('lib') || src.startsWith('app')) {
                 const data = fs.readFileSync(src, 'utf8');
                 fs.writeFileSync(dest, data, 'utf8');
                 console.log(src, '->', dest);

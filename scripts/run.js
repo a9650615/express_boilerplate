@@ -49,7 +49,7 @@ function spawnServer() {
       '--no-lazy',
       // Enable "hot reload", it only works when debugger is off
       ...(isDebug
-        ? ['./server.js']
+        ? ['./lib/server.js']
         : [
             '--eval',
             'process.stdin.on("data", data => { if (data.toString() === "load") require("./server.js"); });',
